@@ -6,4 +6,3 @@ class TaskList(ListView):
     model = Task
 
 
-
