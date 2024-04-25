@@ -11,3 +11,6 @@ class TaskDetail(DetailView):
     model = Task
     contex_object_name ='task'
     template_name = "base/task.html"
+    
+class TaskCreate(CreateView):
+    
