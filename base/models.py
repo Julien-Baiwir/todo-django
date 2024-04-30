@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+# juliette putasse1$
+# bernard numeric1$
 
 class Task(models.Model):  # Define a Task class which is a database model
     user = models.ForeignKey(  # ForeignKey field linking each task to a user
