@@ -1,20 +1,34 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.urls import reverse_lazy 
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from .models import Task
 
 class CustomLogoutView(LogoutView):
     http_method_names = ['get', 'post']  
 
-
-from .models import Task
-
-
+class RegisterPage(FormView):
+    template_name = 'base/register.html'
+    form_class = UserCreationForm
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('tasks')
+    
+    def form_valid(self, form):
+        user = form.save()
+        if user is not None:
+            login(self.request, user)
+        return super(RegisterPage, self).form_valid(form)
+    
+    def get(self, *args, **kwargs):
+        if self.request.user.is_authenticated:
+            return redirect ('tasks')
+        return super(RegisterPage, self).get(*args, **kwargs)
 
 class CustomLoginView(LoginView):
     template_name = 'base/login.html'
@@ -32,8 +46,16 @@ class TaskList(LoginRequiredMixin, ListView):
     context_object_name = 'task_list'  
     
     def get_queryset(self):
-        return Task.objects.filter(user=self.request.user)
+        queryset = Task.objects.filter(user=self.request.user)
+        search_input = self.request.GET.get('search-area')
+        if search_input:   
+            queryset = queryset.filter(title__startswith=search_input)  
+        return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_input'] = self.request.GET.get('search-area', '')
+        return context
 
 class TaskDetail(LoginRequiredMixin, DetailView):
     model = Task
