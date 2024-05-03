@@ -1,3 +1,5 @@
+{% extends 'base/main.html' %}
+{% block content %}
 {% if request.user.is_authenticated %}
 <p>{{ request.user }}</p>
 <form action="{% url 'logout' %}" method="post">
@@ -29,7 +31,7 @@
     {% comment %} {% for task in tasks %} {% endcomment %}
     <tr>
      <td>{{task.title}}</td>
-     <td><a href="{% url 'task' task.id %}">View</td>
+     {% comment %} <td><a href="{% url 'task' task.id %}">View</td> {% endcomment %}
      <td><a href="{% url 'task-update' task.id %}">Edit</td>
      <td><a href="{% url 'task-delete' task.id %}">Delete</td>
     </tr>
@@ -38,3 +40,6 @@
     {% endfor%}
     
 </table>
+{% endblock content %}
+
+
